@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import logo from "@/assets/logo-stop-poprire.png";
 
 const nav = [
   { to: "/", label: "Acasă" },
@@ -27,8 +28,8 @@ export function SiteHeader() {
       }`}
     >
       <div className="mx-auto max-w-6xl px-5 sm:px-8 h-16 flex items-center justify-between">
-        <Link to="/" className="font-display text-lg font-semibold tracking-tight text-ink">
-          stop<span className="text-accent">·</span>poprire
+        <Link to="/" className="flex items-center gap-2" aria-label="stop-poprire">
+          <img src={logo} alt="stop-poprire" className="h-9 w-auto" />
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm">
           {nav.map((n) => (
