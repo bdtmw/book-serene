@@ -77,10 +77,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "stop-poprire — Ghid practic pentru executarea silită" },
       { name: "description", content: "Ebook esențial despre poprire și executare silită. Învață să-ți protejezi veniturile cu pași clari și exemple practice." },
       { property: "og:title", content: "stop-poprire — Ghid practic pentru executarea silită" },
-      { property: "og:description", content: "Ebook esențial despre poprire și executare silită." },
+      { property: "og:description", content: "Ebook esențial despre poprire și executare silită. Învață să-ți protejezi veniturile cu pași clari și exemple practice." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "stop-poprire — Ghid practic pentru executarea silită" },
+      { name: "twitter:description", content: "Ebook esențial despre poprire și executare silită. Învață să-ți protejezi veniturile cu pași clari și exemple practice." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4e3b6346-3876-4cdc-b7eb-835feb20cccf/id-preview-f13863f8--bacf452c-0dda-42e0-a303-7bcbb85cdbb8.lovable.app-1778161140590.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4e3b6346-3876-4cdc-b7eb-835feb20cccf/id-preview-f13863f8--bacf452c-0dda-42e0-a303-7bcbb85cdbb8.lovable.app-1778161140590.png" },
     ],
     links: [
       {
