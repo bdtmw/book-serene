@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Check, ShieldCheck, Download, ArrowRight, Facebook, Youtube, Music2, Share2 } from "lucide-react";
 import { useState } from "react";
@@ -34,6 +34,18 @@ const faqs = [
 function EbookPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const shareUrl = typeof window !== "undefined" ? window.location.href : "https://stop-poprire.ro/ebook";
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ name: "", email: "" });
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name || !form.email) return;
+    setSubmitting(true);
+    // TODO: call Stripe Checkout server fn once Lovable Cloud + Payments are enabled.
+    await new Promise((r) => setTimeout(r, 400));
+    navigate({ to: "/checkout-success" });
+  };
 
   return (
     <>
@@ -113,10 +125,40 @@ function EbookPage() {
                 <li key={t} className="flex gap-2 text-foreground/85"><Check size={16} className="text-accent mt-0.5" />{t}</li>
               ))}
             </ul>
-            <Link to="/checkout-success" className="group mt-10 inline-flex items-center gap-2 rounded-full bg-ink px-8 py-4 text-sm font-medium text-cream hover:bg-ink/90 transition">
-              <Download size={16} /> Buy Now — Plată Stripe
-            </Link>
-            <p className="mt-4 text-xs text-muted-foreground">Conectează Lovable Cloud și Stripe pentru a activa plățile reale.</p>
+            <form onSubmit={handleSubmit} className="mt-10 max-w-sm mx-auto text-left space-y-3">
+              <div>
+                <label htmlFor="name" className="block text-xs uppercase tracking-widest text-muted-foreground mb-1.5">Nume complet</label>
+                <input
+                  id="name"
+                  type="text"
+                  required
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-ink placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-accent/40"
+                  placeholder="Ion Popescu"
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-xs uppercase tracking-widest text-muted-foreground mb-1.5">Email pentru livrare</label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-ink placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-accent/40"
+                  placeholder="ion@email.com"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="group mt-2 w-full inline-flex items-center justify-center gap-2 rounded-full bg-ink px-8 py-4 text-sm font-medium text-cream hover:bg-ink/90 transition disabled:opacity-60"
+              >
+                <Download size={16} /> {submitting ? "Se procesează…" : "Continuă spre plată — 49 lei"}
+              </button>
+            </form>
+            <p className="mt-4 text-xs text-muted-foreground">Activează Lovable Cloud + Stripe pentru a procesa plățile reale.</p>
 
             {/* Share */}
             <div className="mt-10 pt-8 border-t border-border flex items-center justify-center gap-3 text-xs text-muted-foreground">
