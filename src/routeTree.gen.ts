@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as EbookRouteImport } from './routes/ebook'
+import { Route as CheckoutSuccessRouteImport } from './routes/checkout-success'
 import { Route as IndexRouteImport } from './routes/index'
 
 const EbookRoute = EbookRouteImport.update({
   id: '/ebook',
   path: '/ebook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutSuccessRoute = CheckoutSuccessRouteImport.update({
+  id: '/checkout-success',
+  path: '/checkout-success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/checkout-success': typeof CheckoutSuccessRoute
   '/ebook': typeof EbookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/checkout-success': typeof CheckoutSuccessRoute
   '/ebook': typeof EbookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/checkout-success': typeof CheckoutSuccessRoute
   '/ebook': typeof EbookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ebook'
+  fullPaths: '/' | '/checkout-success' | '/ebook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ebook'
-  id: '__root__' | '/' | '/ebook'
+  to: '/' | '/checkout-success' | '/ebook'
+  id: '__root__' | '/' | '/checkout-success' | '/ebook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CheckoutSuccessRoute: typeof CheckoutSuccessRoute
   EbookRoute: typeof EbookRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/ebook'
       fullPath: '/ebook'
       preLoaderRoute: typeof EbookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout-success': {
+      id: '/checkout-success'
+      path: '/checkout-success'
+      fullPath: '/checkout-success'
+      preLoaderRoute: typeof CheckoutSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CheckoutSuccessRoute: CheckoutSuccessRoute,
   EbookRoute: EbookRoute,
 }
 export const routeTree = rootRouteImport
