@@ -1,12 +1,13 @@
 import { Facebook, Youtube, Music2, Mail } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import logo from "@/assets/logo-stop-poprire.png";
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-cream">
       <div className="mx-auto max-w-6xl px-5 sm:px-8 py-14 grid gap-10 md:grid-cols-3">
         <div>
-          <div className="font-display text-xl font-semibold text-ink">stop·poprire</div>
+          <img src={logo} alt="stop-poprire" className="h-10 w-auto" />
           <p className="mt-3 text-sm text-muted-foreground max-w-xs">
             Educație financiară practică pentru a înțelege poprirea și executarea silită.
           </p>
