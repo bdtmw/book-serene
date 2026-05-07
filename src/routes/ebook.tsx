@@ -31,6 +31,46 @@ const faqs = [
   { q: "Conținutul este actualizat?", a: "Ediția 2026 conține cele mai recente reglementări și exemple practice." },
 ];
 
+function Field({
+  id,
+  label,
+  value,
+  onChange,
+  type = "text",
+  placeholder,
+  maxLength,
+  inputMode,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+  placeholder?: string;
+  maxLength?: number;
+  inputMode?: "text" | "numeric" | "tel" | "email";
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className="block text-[11px] uppercase tracking-widest text-muted-foreground mb-1.5">
+        {label}
+      </label>
+      <input
+        id={id}
+        type={type}
+        required
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        inputMode={inputMode}
+        autoComplete="off"
+        className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-ink placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-accent/40"
+      />
+    </div>
+  );
+}
+
 function EbookPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const shareUrl = typeof window !== "undefined" ? window.location.href : "https://stop-poprire.ro/ebook";
