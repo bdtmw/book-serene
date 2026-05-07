@@ -31,19 +31,91 @@ const faqs = [
   { q: "Conținutul este actualizat?", a: "Ediția 2026 conține cele mai recente reglementări și exemple practice." },
 ];
 
+function Field({
+  id,
+  label,
+  value,
+  onChange,
+  type = "text",
+  placeholder,
+  maxLength,
+  inputMode,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+  placeholder?: string;
+  maxLength?: number;
+  inputMode?: "text" | "numeric" | "tel" | "email";
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className="block text-[11px] uppercase tracking-widest text-muted-foreground mb-1.5">
+        {label}
+      </label>
+      <input
+        id={id}
+        type={type}
+        required
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        inputMode={inputMode}
+        autoComplete="off"
+        className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-ink placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-accent/40"
+      />
+    </div>
+  );
+}
+
 function EbookPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const shareUrl = typeof window !== "undefined" ? window.location.href : "https://stop-poprire.ro/ebook";
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    country: "România",
+    cardName: "",
+    cardNumber: "",
+    expiry: "",
+    cvc: "",
+  });
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const formatCard = (v: string) => v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+  const formatExpiry = (v: string) => {
+    const d = v.replace(/\D/g, "").slice(0, 4);
+    return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.email) return;
+    setError(null);
+    if (form.name.trim().length < 2) return setError("Introdu numele complet.");
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) return setError("Email invalid.");
+    if (form.phone.replace(/\D/g, "").length < 9) return setError("Număr de telefon invalid.");
+    if (form.address.trim().length < 5) return setError("Introdu adresa completă.");
+    if (form.city.trim().length < 2) return setError("Introdu orașul.");
+    if (form.postalCode.trim().length < 4) return setError("Cod poștal invalid.");
+    if (form.cardName.trim().length < 2) return setError("Introdu numele de pe card.");
+    if (form.cardNumber.replace(/\s/g, "").length < 13) return setError("Număr de card invalid.");
+    if (!/^\d{2}\/\d{2}$/.test(form.expiry)) return setError("Data expirării trebuie să fie LL/AA.");
+    if (form.cvc.length < 3) return setError("CVC invalid.");
     setSubmitting(true);
     // TODO: call Stripe Checkout server fn once Lovable Cloud + Payments are enabled.
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 600));
     navigate({ to: "/checkout-success" });
   };
 
@@ -125,40 +197,81 @@ function EbookPage() {
                 <li key={t} className="flex gap-2 text-foreground/85"><Check size={16} className="text-accent mt-0.5" />{t}</li>
               ))}
             </ul>
-            <form onSubmit={handleSubmit} className="mt-10 max-w-sm mx-auto text-left space-y-3">
-              <div>
-                <label htmlFor="name" className="block text-xs uppercase tracking-widest text-muted-foreground mb-1.5">Nume complet</label>
-                <input
-                  id="name"
-                  type="text"
-                  required
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-ink placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-accent/40"
-                  placeholder="Ion Popescu"
-                />
+            <form onSubmit={handleSubmit} className="mt-10 max-w-md mx-auto text-left space-y-6">
+              {/* Contact */}
+              <div className="space-y-3">
+                <h3 className="text-xs uppercase tracking-widest text-accent">Date de contact</h3>
+                <Field id="name" label="Nume complet" value={form.name} onChange={update("name")} placeholder="Ion Popescu" maxLength={100} />
+                <div className="grid grid-cols-2 gap-3">
+                  <Field id="email" label="Email" type="email" value={form.email} onChange={update("email")} placeholder="ion@email.com" maxLength={255} />
+                  <Field id="phone" label="Telefon" type="tel" value={form.phone} onChange={update("phone")} placeholder="07xx xxx xxx" maxLength={20} />
+                </div>
               </div>
-              <div>
-                <label htmlFor="email" className="block text-xs uppercase tracking-widest text-muted-foreground mb-1.5">Email pentru livrare</label>
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-ink placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-accent/40"
-                  placeholder="ion@email.com"
-                />
+
+              {/* Billing */}
+              <div className="space-y-3">
+                <h3 className="text-xs uppercase tracking-widest text-accent">Adresă facturare</h3>
+                <Field id="address" label="Adresă" value={form.address} onChange={update("address")} placeholder="Str. Exemplu nr. 12, ap. 4" maxLength={200} />
+                <div className="grid grid-cols-2 gap-3">
+                  <Field id="city" label="Oraș" value={form.city} onChange={update("city")} placeholder="București" maxLength={80} />
+                  <Field id="postalCode" label="Cod poștal" value={form.postalCode} onChange={update("postalCode")} placeholder="010101" maxLength={20} />
+                </div>
+                <Field id="country" label="Țară" value={form.country} onChange={update("country")} maxLength={80} />
               </div>
+
+              {/* Payment */}
+              <div className="space-y-3">
+                <h3 className="text-xs uppercase tracking-widest text-accent flex items-center gap-2">
+                  <ShieldCheck size={12} /> Date card
+                </h3>
+                <Field id="cardName" label="Nume pe card" value={form.cardName} onChange={update("cardName")} placeholder="ION POPESCU" maxLength={100} />
+                <Field
+                  id="cardNumber"
+                  label="Număr card"
+                  inputMode="numeric"
+                  value={form.cardNumber}
+                  onChange={(e) => setForm((f) => ({ ...f, cardNumber: formatCard(e.target.value) }))}
+                  placeholder="4242 4242 4242 4242"
+                  maxLength={19}
+                />
+                <div className="grid grid-cols-2 gap-3">
+                  <Field
+                    id="expiry"
+                    label="Expirare"
+                    inputMode="numeric"
+                    value={form.expiry}
+                    onChange={(e) => setForm((f) => ({ ...f, expiry: formatExpiry(e.target.value) }))}
+                    placeholder="LL/AA"
+                    maxLength={5}
+                  />
+                  <Field
+                    id="cvc"
+                    label="CVC"
+                    inputMode="numeric"
+                    value={form.cvc}
+                    onChange={(e) => setForm((f) => ({ ...f, cvc: e.target.value.replace(/\D/g, "").slice(0, 4) }))}
+                    placeholder="123"
+                    maxLength={4}
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{error}</p>
+              )}
+
               <button
                 type="submit"
                 disabled={submitting}
-                className="group mt-2 w-full inline-flex items-center justify-center gap-2 rounded-full bg-ink px-8 py-4 text-sm font-medium text-cream hover:bg-ink/90 transition disabled:opacity-60"
+                className="group w-full inline-flex items-center justify-center gap-2 rounded-full bg-ink px-8 py-4 text-sm font-medium text-cream hover:bg-ink/90 transition disabled:opacity-60"
               >
-                <Download size={16} /> {submitting ? "Se procesează…" : "Continuă spre plată — 49 lei"}
+                <Download size={16} /> {submitting ? "Se procesează…" : "Plătește 49 lei"}
               </button>
+              <p className="text-center text-[11px] text-muted-foreground flex items-center justify-center gap-1.5">
+                <ShieldCheck size={12} className="text-accent" /> Plată criptată SSL · Garanție 14 zile
+              </p>
             </form>
-            <p className="mt-4 text-xs text-muted-foreground">Activează Lovable Cloud + Stripe pentru a procesa plățile reale.</p>
+            <p className="mt-4 text-xs text-muted-foreground">Demo — activează Lovable Cloud + Stripe pentru a procesa plățile reale și a emite factura.</p>
 
             {/* Share */}
             <div className="mt-10 pt-8 border-t border-border flex items-center justify-center gap-3 text-xs text-muted-foreground">
